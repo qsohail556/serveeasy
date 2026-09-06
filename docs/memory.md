@@ -10,7 +10,8 @@ This file is a running log of decisions, context, and status for this project. R
 
 - **Name:** ServeEasy (renamed from placeholder "TapMenu" — repo folder/package names still say tapmenu internally, not yet renamed in code)
 - **One-liner:** QR-based contactless table ordering + payment for restaurants/hotels
-- **Current phase:** Phase 2 — COMPLETE and fully tested through the real UI. Ready to start Phase 3 (online payments) or tackle open Phase 2 items (image upload, rename).
+- **Current phase:** Phase 2 — COMPLETE, fully tested, and **deployed live**. Ready to start Phase 3 (online payments) or tackle remaining polish items.
+- **Live URLs:** Frontend: `https://serveeasy.vercel.app` · Backend: `https://serveeasy-api.onrender.com` · GitHub: `https://github.com/qsohail556/serveeasy`
 - **Stack:** React + Vite + Tailwind (frontend), Node.js + Express (backend), PostgreSQL via Supabase (DB), Supabase Realtime (live orders — not yet wired, currently polling), JWT + bcrypt (staff/admin auth), Razorpay (Phase 2 payments)
 - **Related docs:** `prd.md` (what/why), `architecture.md` (how it's built), `rules.md` (build conventions), `phases.md` (roadmap), `design.md` (UI/UX direction), `functional.md` (how to actually run it, day to day)
 
@@ -71,6 +72,16 @@ This file is a running log of decisions, context, and status for this project. R
 - **Full Phase 2 flow verified through the actual UI** (not just API testing): logged in, added a category, added a menu item, added a table, confirmed the QR code image rendered correctly for the new table.
 - **Status: Phase 2 is fully complete and verified.** Both Phase 1 and Phase 2 of the original roadmap are done. Next up per `phases.md`: Phase 3 (Razorpay payments) — or first, the still-open Phase 2 items (image upload UI, code-level rename to `serveeasy`) if preferred before moving on.
 
+### [Rename + deployment session]
+- Renamed project folder from `tapmenu` to `serveeasy` (parent folder only — inner project folder still technically named `tapmenu` in the file path, e.g. `...\serveeasy\tapmenu\`, but this doesn't affect functionality). Updated `package.json` `name` fields in both `client/` and `server/`, and the README title.
+- Pushed code to GitHub: `https://github.com/qsohail556/serveeasy`. Verified `.env` files were correctly excluded via `.gitignore` before pushing — confirmed clean via `git status` review and a manual check on the live GitHub repo page.
+- **Deployed backend to Render**: `https://serveeasy-api.onrender.com`. Root directory set to `server`, build command `npm install`, start command `npm start`. Environment variables (`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `JWT_SECRET`, `PORT`, `CLIENT_ORIGIN`) copied over from local `.env`. Verified live via `/health` and `/api/menu/demo-restaurant` — both returned correct real data from Supabase.
+- **Deployed frontend to Vercel**: `https://serveeasy.vercel.app`. Root directory set to `client`, framework preset Vite. `VITE_API_URL` environment variable pointed at the Render backend + `/api`.
+- **Bug hit #6:** after deploying, direct navigation to `/staff/login` (or refreshing that page) returned a 404 from Vercel. Root cause: this is standard SPA routing behavior — Vercel's static server looks for a physical file/folder matching the URL path and finds none, since React Router only handles routing client-side *after* `index.html` has already loaded. Fixed by adding `client/vercel.json` with a rewrite rule sending all paths to `/index.html`.
+- **Bug hit #7 (self-inflicted while fixing #6):** first attempt at creating `vercel.json` resulted in an empty file — `git commit` showed `0 insertions`, which was the tell. Root cause: content wasn't actually saved into the file before staging it. Also tried writing the JSON via PowerShell `echo`, which mangled the curly braces/colons as PowerShell syntax rather than literal text. Fixed by editing and saving the file directly in VS Code instead of the terminal — safer approach for JSON/config files on Windows PowerShell going forward.
+- **After the CORS fix** (updating `CLIENT_ORIGIN` on Render to the real Vercel URL) and the `vercel.json` fix, the entire live flow was verified working: home page, staff login, admin panel (existing categories/items/tables all loaded correctly), and staff dashboard — all running on real public infrastructure, zero localhost involved.
+- **Status: ServeEasy is now live on the public internet.** This is a genuinely resume/portfolio-ready milestone — a real, working, deployed product with a public URL, not just a local dev project.
+
 ---
 
 ## What's Built (Phase 1 + Phase 2 — both complete)
@@ -90,12 +101,11 @@ This file is a running log of decisions, context, and status for this project. R
 ## What Remains (Phase 3 onward — see `phases.md` for full detail)
 
 - ❌ Image upload — `image_url` is still a plain text field, no file picker/Supabase Storage integration
-- ❌ Code-level rename from `tapmenu` to `serveeasy` — folder name, `package.json` `name` fields, README still say tapmenu
 - ❌ Supabase Realtime — dashboard currently uses polling (5s interval), not true push
 - ❌ Online payment (Razorpay) — pay-at-counter only right now
 - ❌ Multi-tenant support — single hotel (`demo-restaurant`) only
-- ❌ Production deployment (Render/Vercel) — everything is local-only so far
 - ❌ Form validation polish — basic required-field checks only, no deeper UX polish on error states
+- ⚠️ Render free tier auto-pauses after 15 min of inactivity — first request after idle will be slow (cold start). Fine for a portfolio demo, worth knowing before showing it live to someone unannounced.
 
 ## Open Questions (unresolved, revisit later)
 

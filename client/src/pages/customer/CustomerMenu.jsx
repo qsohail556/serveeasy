@@ -6,6 +6,7 @@ import { useCart } from '../../context/CartContext.jsx';
 export default function CustomerMenu() {
   const { hotelSlug, tableId } = useParams();
   const [hotel, setHotel] = useState(null);
+  const [table, setTable] = useState(null);
   const [menu, setMenu] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,11 +15,12 @@ export default function CustomerMenu() {
 
   useEffect(() => {
     api
-      .getMenu(hotelSlug)
-      .then((data) => {
-        setHotel(data.hotel);
-        setMenu(data.menu);
-      })
+      .getMenu(hotelSlug, tableId)
+  .then((data) => {
+    setHotel(data.hotel);
+    setTable(data.table);
+    setMenu(data.menu);
+  })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [hotelSlug]);
@@ -60,7 +62,7 @@ export default function CustomerMenu() {
       {/* Sticky header */}
       <div className="sticky top-0 bg-white shadow-sm p-4 flex justify-between items-center z-10">
         <h1 className="font-semibold text-lg">{hotel?.name}</h1>
-        <span className="bg-primary text-white text-sm px-3 py-1 rounded-full">Table {tableId.slice(0, 4)}</span>
+        <span className="bg-primary text-white text-sm px-3 py-1 rounded-full">Table {table?.table_number ?? '—'}</span>
       </div>
 
       {/* Menu by category */}

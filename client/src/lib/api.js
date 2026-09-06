@@ -19,7 +19,8 @@ async function request(path, options = {}) {
 }
 
 export const api = {
-  getMenu: (hotelSlug) => request(`/menu/${hotelSlug}`),
+  getMenu: (hotelSlug, tableId) =>
+  tableId ? request(`/menu/${hotelSlug}/${tableId}`) : request(`/menu/${hotelSlug}`),
   placeOrder: (payload) => request('/orders', { method: 'POST', body: JSON.stringify(payload) }),
   getOrderStatus: (orderId) => request(`/orders/${orderId}/status`),
   login: (email, password) =>

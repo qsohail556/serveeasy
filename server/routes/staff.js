@@ -10,7 +10,7 @@ router.get('/orders', async (req, res) => {
   const { status } = req.query;
   let query = supabase
     .from('orders')
-    .select('id, table_id, status, total_amount, payment_method, payment_status, created_at, order_items(*)')
+    .select('id, table_id, status, total_amount, payment_method, payment_status, created_at, order_items(*), tables(table_number)')
     .eq('hotel_id', req.user.hotel_id)
     .order('created_at', { ascending: true });
 
@@ -34,7 +34,7 @@ router.patch('/orders/:id/status', async (req, res) => {
     .from('orders')
     .update({ status })
     .eq('id', req.params.id)
-    .eq('hotel_id', req.user.hotel_id) // scope update to this staff member's hotel
+    .eq('hotel_id', req.user.hotel_id)
     .select()
     .single();
 
