@@ -22,6 +22,10 @@ cp .env.example .env   # fill in SUPABASE_URL, SUPABASE_SERVICE_KEY, JWT_SECRET
 npm install
 npm run dev             # runs on http://localhost:4000
 ```
+A demo account is seeded automatically on first run:
+
+Email: admin@demo.com
+Password: test1234
 
 Create a staff/admin user manually for now (Phase 2 will add a signup flow):
 
